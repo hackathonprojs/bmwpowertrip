@@ -91,7 +91,7 @@ function addBasicMarker(map, lat, lng) {
 }
 
 function addPoi() {
-  var url = "http://www.corsproxy.com/places.demo.api.here.com/places/v1/discover/explore?at=37.7833%2C-122.4167&cat=eat-drink&size=5&app_id=u2XKUURF9a5Hn1Qzjolj&app_code=91pISKIrgVscVQyd2L0Sdg&accept=application/json";
+  var url = "http://www.corsproxy.com/places.demo.api.here.com/places/v1/discover/explore?at=37.7833%2C-122.4167&cat=eat-drink&size=20&app_id=u2XKUURF9a5Hn1Qzjolj&app_code=91pISKIrgVscVQyd2L0Sdg&accept=application/json";
   $.getJSON( url, function( data ) {
     console.log(data);
     if (data && data.results && data.results.items) {
@@ -120,7 +120,7 @@ function addChargepoint() {
         if (data[i].Port && data[i].Port.Geo && data[i].Port.Geo.Lat && data[i].Port.Geo.Long) {
           //addBasicMarker(map, data[i].Port.Geo.Lat, data[i].Port.Geo.Long);
           //addDomMarker(map, data[i].Port.Geo.Lat, data[i].Port.Geo.Long, "C");
-          var icon = new H.map.Icon('http://notebazaar.com/img/red.png');
+          var icon = new H.map.Icon('http://notebazaar.com/img/cp.png');
           addIconMarker(map, data[i].Port.Geo.Lat, data[i].Port.Geo.Long, icon);
         }
       }
@@ -189,14 +189,21 @@ function addDomMarker(map, lat, lng, symbol) {
 
 
 
+var carMarker;
+var showCarIndex = 0;
 function showCar() {
-  var url = "http://code.jeancarl.com/hackthedrive/location.php";
+  var url = "http://code.jeancarl.com/hackthedrive/location.php?i=" + showCarIndex++;
 
   $.getJSON(url, function (data) {
     console.log(data);
     if (data && data.lat && data.lon) {
       var icon = new H.map.Icon('http://notebazaar.com/img/car.png');
-      addIconMarker(map, data.lat, data.lon, icon);
+
+      if (carMarker) {
+        map.removeObject(carMarker);
+      }
+
+      carMarker = addIconMarker(map, data.lat, data.lon, icon);
       //addDomMarker(map, data.lat, data.lon, "CAR");
     }
   });
@@ -208,6 +215,17 @@ showCar();
 function addIconMarker(map, lat, lng, icon) {
   var markerObj = new H.map.Marker({lat:lat, lng:lng}, {icon: icon});
   map.addObject(markerObj);
+  return markerObj;
+}
+
+function loop() {
+  setInterval(showCar, 5000);
+}
+
+loop();
+
+function showAll() {
+
 }
 
   </script>
