@@ -90,25 +90,7 @@ function addBasicMarker(map, lat, lng) {
   map.addObject(markerObj);
 }
 
-function addPoi() {
-  var url = "http://www.corsproxy.com/places.demo.api.here.com/places/v1/discover/explore?at=37.7833%2C-122.4167&cat=eat-drink&size=20&app_id=u2XKUURF9a5Hn1Qzjolj&app_code=91pISKIrgVscVQyd2L0Sdg&accept=application/json";
-  $.getJSON( url, function( data ) {
-    console.log(data);
-    if (data && data.results && data.results.items) {
-      var items = data.results.items;
-      for (var i=0; i<items.length; i++) {
-        var item = items[i];
-        //addBasicMarker(map, item.position[0], item.position[1]);
-        //addDomMarker(map, item.position[0], item.position[1], "P");
-        var icon = new H.map.Icon('http://notebazaar.com/img/green.png');
-        addIconMarker(map, item.position[0], item.position[1], icon);
-      }
-    }
-  });
 
-}
-
-addPoi();
 
 
 function addChargepoint() {
@@ -190,6 +172,7 @@ function addDomMarker(map, lat, lng, symbol) {
 
 
 var carMarker;
+var carPosition = {};
 var showCarIndex = 0;
 function showCar() {
   var url = "http://code.jeancarl.com/hackthedrive/location.php?i=" + showCarIndex++;
@@ -199,12 +182,16 @@ function showCar() {
     if (data && data.lat && data.lon) {
       var icon = new H.map.Icon('http://notebazaar.com/img/car.png');
 
+      carPosition = { lat: data.lat, lng: data.lon };
+
       if (carMarker) {
         map.removeObject(carMarker);
       }
 
       carMarker = addIconMarker(map, data.lat, data.lon, icon);
       //addDomMarker(map, data.lat, data.lon, "CAR");
+
+      showPoi();
     }
   });
 }
@@ -219,13 +206,81 @@ function addIconMarker(map, lat, lng, icon) {
 }
 
 function loop() {
-  setInterval(showCar, 5000);
+  setInterval(showAll, 5000);
 }
 
 loop();
 
 function showAll() {
+  showCar();
+  //addPoi();
+  //addChargepoint();
+}
 
+function showPoi() {
+  var url = "http://www.corsproxy.com/places.demo.api.here.com/places/v1/discover/explore?at=37.7833%2C-122.4167&cat=eat-drink&size=20&app_id=u2XKUURF9a5Hn1Qzjolj&app_code=91pISKIrgVscVQyd2L0Sdg&accept=application/json";
+  $.getJSON( url, function( data ) {
+    console.log(data);
+    if (data && data.results && data.results.items) {
+      var items = data.results.items;
+      for (var i=0; i<items.length; i++) {
+        var item = items[i];
+        //addBasicMarker(map, item.position[0], item.position[1]);
+        //addDomMarker(map, item.position[0], item.position[1], "P");
+        var greenIcon = new H.map.Icon('http://notebazaar.com/img/green.png');
+        var redIcon = new H.map.Icon('http://notebazaar.com/img/red.png');
+        var icon = greenIcon;
+        
+        if (carPosition) {
+          if (distance(carPosition.lat, carPosition.lng, item.position[0], item.position[1], "M") > 1) {
+            icon = redIcon;
+          }
+        }
+
+        addIconMarker(map, item.position[0], item.position[1], icon);
+      }
+    }
+  });
+
+}
+
+function addPoi() {
+  var url = "http://www.corsproxy.com/places.demo.api.here.com/places/v1/discover/explore?at=37.7833%2C-122.4167&cat=eat-drink&size=20&app_id=u2XKUURF9a5Hn1Qzjolj&app_code=91pISKIrgVscVQyd2L0Sdg&accept=application/json";
+  $.getJSON( url, function( data ) {
+    console.log(data);
+    if (data && data.results && data.results.items) {
+      var items = data.results.items;
+      for (var i=0; i<items.length; i++) {
+        var item = items[i];
+        //addBasicMarker(map, item.position[0], item.position[1]);
+        //addDomMarker(map, item.position[0], item.position[1], "P");
+        var greenIcon = new H.map.Icon('http://notebazaar.com/img/green.png');
+        var redIcon = new H.map.Icon('http://notebazaar.com/img/red.png');
+        var icon = greenIcon;
+        
+        addIconMarker(map, item.position[0], item.position[1], icon);
+      }
+    }
+  });
+
+}
+
+//addPoi();
+
+function distance(lat1, lon1, lat2, lon2, unit) {
+        var radlat1 = Math.PI * lat1/180
+        var radlat2 = Math.PI * lat2/180
+        var radlon1 = Math.PI * lon1/180
+        var radlon2 = Math.PI * lon2/180
+        var theta = lon1-lon2
+        var radtheta = Math.PI * theta/180
+        var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+        dist = Math.acos(dist)
+        dist = dist * 180/Math.PI
+        dist = dist * 60 * 1.1515
+        if (unit=="K") { dist = dist * 1.609344 }
+        if (unit=="N") { dist = dist * 0.8684 }
+        return dist
 }
 
   </script>
