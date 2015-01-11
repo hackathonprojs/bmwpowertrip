@@ -4,8 +4,24 @@ var app = express();
 app.set('port', (process.env.PORT || 5000));
 app.use(express.static(__dirname + '/public'));
 
+var flag = false;
+
 app.get('/', function(request, response) {
   response.send('Hello World!');
+});
+
+app.get('/flag', function(request, response) {
+	response.send(flag);
+});
+
+app.get('/flagset', function(request, response) { 
+	flag = true;
+	response.send(flag);
+});
+
+app.get('/flagclear', function(request, response) {
+	flag = false;
+	response.send(flag);
 });
 
 app.listen(app.get('port'), function() {
