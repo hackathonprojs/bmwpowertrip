@@ -90,17 +90,125 @@ function addBasicMarker(map, lat, lng) {
   map.addObject(markerObj);
 }
 
-var url = "http://www.corsproxy.com/places.demo.api.here.com/places/v1/discover/explore?at=37.7833%2C-122.4167&cat=eat-drink&size=50&app_id=u2XKUURF9a5Hn1Qzjolj&app_code=91pISKIrgVscVQyd2L0Sdg&accept=application/json";
-$.getJSON( url, function( data ) {
-  console.log(data);
-  if (data && data.results && data.results.items) {
-    var items = data.results.items;
-    for (var i=0; i<items.length; i++) {
-      var item = items[i];
-      addBasicMarker(map, item.position[0], item.position[1]);
+function addPoi() {
+  var url = "http://www.corsproxy.com/places.demo.api.here.com/places/v1/discover/explore?at=37.7833%2C-122.4167&cat=eat-drink&size=5&app_id=u2XKUURF9a5Hn1Qzjolj&app_code=91pISKIrgVscVQyd2L0Sdg&accept=application/json";
+  $.getJSON( url, function( data ) {
+    console.log(data);
+    if (data && data.results && data.results.items) {
+      var items = data.results.items;
+      for (var i=0; i<items.length; i++) {
+        var item = items[i];
+        //addBasicMarker(map, item.position[0], item.position[1]);
+        //addDomMarker(map, item.position[0], item.position[1], "P");
+        var icon = new H.map.Icon('http://notebazaar.com/img/green.png');
+        addIconMarker(map, item.position[0], item.position[1], icon);
+      }
     }
-  }
-});
+  });
+
+}
+
+addPoi();
+
+
+function addChargepoint() {
+  var chargepointUrl = "http://code.jeancarl.com/hackthedrive/chargepoint.php?lat=37.7833&long=-122.4167";
+  $.getJSON(chargepointUrl, function (data) {
+    console.log(data);
+    if (data) {
+      for (var i=0; i<data.length; i++) {
+        if (data[i].Port && data[i].Port.Geo && data[i].Port.Geo.Lat && data[i].Port.Geo.Long) {
+          //addBasicMarker(map, data[i].Port.Geo.Lat, data[i].Port.Geo.Long);
+          //addDomMarker(map, data[i].Port.Geo.Lat, data[i].Port.Geo.Long, "C");
+          var icon = new H.map.Icon('http://notebazaar.com/img/red.png');
+          addIconMarker(map, data[i].Port.Geo.Lat, data[i].Port.Geo.Long, icon);
+        }
+      }
+    }
+  });
+
+}
+
+addChargepoint();
+
+
+function addDomMarker(map, lat, lng, symbol) {
+  // create DOM element that's used as a DOM icon
+  var outerElement = document.createElement('div'),
+      innerElement = document.createElement('div');
+
+  outerElement.style.userSelect = 'none';
+  outerElement.style.webkitUserSelect = 'none';
+  outerElement.style.msUserSelect = 'none';
+  outerElement.style.mozUserSelect = 'none';
+  outerElement.style.cursor = 'default';
+
+  innerElement.innerHTML = symbol;
+  innerElement.style.color = 'white';
+
+  innerElement.style.paddingTop = '2px';
+  innerElement.style.paddingLeft = '4px';
+  innerElement.style.width = '20px';
+  innerElement.style.height = '20px';
+
+  //add negative margin to inner element
+  //to move the anchor to center of the div
+  innerElement.style.marginTop = '-10px';
+  innerElement.style.marginLeft = '-10px';
+  innerElement.style.backgroundColor = 'blue';
+  outerElement.appendChild(innerElement);
+
+  function changeOpacity(evt) {
+    evt.target.style.opacity = 0.6;
+  };
+
+  function changeOpacityToOne(evt) {
+    evt.target.style.opacity = 1;
+  };
+
+  //create dom icon and add/remove opacity listeners
+  var domIcon = new H.map.DomIcon(outerElement, {
+    // the function is called every time marker enters the viewport
+    onAttach: function(clonedElement, domIcon, domMarker) {
+      clonedElement.addEventListener('mouseover', changeOpacity);
+      clonedElement.addEventListener('mouseout', changeOpacityToOne);
+    },
+    // the function is called every time marker leaves the viewport
+    onDetach: function(clonedElement, domIcon, domMarker) {
+      clonedElement.removeEventListener('mouseover', changeOpacity);
+      clonedElement.removeEventListener('mouseout', changeOpacityToOne);
+    }
+  });
+
+  var domMarker = new H.map.DomMarker({ lat: lat, lng: lng}, {
+    icon: domIcon
+  });
+  //map.setCenter({ lat: 52.51086, lng: 13.40194});
+  map.addObject(domMarker);
+}
+
+
+
+function showCar() {
+  var url = "http://code.jeancarl.com/hackthedrive/location.php";
+
+  $.getJSON(url, function (data) {
+    console.log(data);
+    if (data && data.lat && data.lon) {
+      var icon = new H.map.Icon('http://notebazaar.com/img/car.png');
+      addIconMarker(map, data.lat, data.lon, icon);
+      //addDomMarker(map, data.lat, data.lon, "CAR");
+    }
+  });
+}
+
+showCar();
+
+
+function addIconMarker(map, lat, lng, icon) {
+  var markerObj = new H.map.Marker({lat:lat, lng:lng}, {icon: icon});
+  map.addObject(markerObj);
+}
 
   </script>
 </body>
