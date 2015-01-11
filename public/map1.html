@@ -103,7 +103,8 @@ function addChargepoint() {
           //addBasicMarker(map, data[i].Port.Geo.Lat, data[i].Port.Geo.Long);
           //addDomMarker(map, data[i].Port.Geo.Lat, data[i].Port.Geo.Long, "C");
           var icon = new H.map.Icon('http://notebazaar.com/img/cp.png');
-          addIconMarker(map, data[i].Port.Geo.Lat, data[i].Port.Geo.Long, icon);
+          //addIconMarker(map, data[i].Port.Geo.Lat, data[i].Port.Geo.Long, icon);
+          addBubbleMarker(map, data[i].Port.Geo.Lat, data[i].Port.Geo.Long, icon, data[i].Address);
         }
       }
     }
@@ -209,7 +210,7 @@ function addBubbleMarker(map, lat, lng, icon, text) {
   var markerObj = new H.map.Marker({lat:lat, lng:lng}, {icon: icon});
   // var html = '<div><a href=\'http://www.mcfc.co.uk\' >Manchester City</a>' +
   //   '</div><div >City of Manchester Stadium<br>Capacity: 48,000</div>';
-  var html = '<div style="font-size: 14px;">' + text + '</div>'
+  var html = '<div style="font-size: 14px; width: 125px;">' + text + '</div>'
   markerObj.setData(html);
   markerObj.addEventListener('tap', function (evt) {
     // event target is the marker itself, group is a parent event target
@@ -227,7 +228,7 @@ function addBubbleMarker(map, lat, lng, icon, text) {
 }
 
 function loop() {
-  setInterval(showAll, 5000);
+  setInterval(showAll, 3000);
 }
 
 loop();
