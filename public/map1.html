@@ -4,6 +4,7 @@
   <meta name="viewport" content="initial-scale=1.0, width=device-width" />
   <link rel="stylesheet" type="text/css"
     href="http://js.api.here.com/v3/3.0/mapsjs-ui.css" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
   <script type="text/javascript" charset="UTF-8"
     src="http://js.api.here.com/v3/3.0/mapsjs-core.js"></script>
   <script type="text/javascript" charset="UTF-8"
@@ -14,7 +15,7 @@
     src="http://js.api.here.com/v3/3.0/mapsjs-ui.js"></script>
 </head>
 <body>
-  <div id="map" style="width: 100%; height: 900px; background: grey" />
+  <div id="map" style="width: 100%; height: 800px; background: grey;" />
   <script  type="text/javascript" charset="UTF-8" >
     
 /**
@@ -82,7 +83,24 @@ function addMarkersToMap(map) {
   map.addObject(londonMarker);
 }
 
-addMarkersToMap(map);
+//addMarkersToMap(map);
+
+function addBasicMarker(map, lat, lng) {
+  var markerObj = new H.map.Marker({lat:lat, lng:lng});
+  map.addObject(markerObj);
+}
+
+var url = "http://www.corsproxy.com/places.demo.api.here.com/places/v1/discover/explore?at=37.7833%2C-122.4167&cat=eat-drink&size=50&app_id=u2XKUURF9a5Hn1Qzjolj&app_code=91pISKIrgVscVQyd2L0Sdg&accept=application/json";
+$.getJSON( url, function( data ) {
+  console.log(data);
+  if (data && data.results && data.results.items) {
+    var items = data.results.items;
+    for (var i=0; i<items.length; i++) {
+      var item = items[i];
+      addBasicMarker(map, item.position[0], item.position[1]);
+    }
+  }
+});
 
   </script>
 </body>
