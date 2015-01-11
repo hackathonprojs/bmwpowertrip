@@ -205,6 +205,27 @@ function addIconMarker(map, lat, lng, icon) {
   return markerObj;
 }
 
+function addBubbleMarker(map, lat, lng, icon, text) {
+  var markerObj = new H.map.Marker({lat:lat, lng:lng}, {icon: icon});
+  // var html = '<div><a href=\'http://www.mcfc.co.uk\' >Manchester City</a>' +
+  //   '</div><div >City of Manchester Stadium<br>Capacity: 48,000</div>';
+  var html = '<div>' + text + '</div>'
+  markerObj.setData(html);
+  markerObj.addEventListener('tap', function (evt) {
+    // event target is the marker itself, group is a parent event target
+    // for all objects that it contains
+    var bubble =  new H.ui.InfoBubble(evt.target.getPosition(), {
+      // read custom data
+      content: evt.target.getData()
+    });
+    // show info bubble
+    ui.addBubble(bubble);
+  }, false);
+
+  map.addObject(markerObj);
+  return markerObj;
+}
+
 function loop() {
   setInterval(showAll, 5000);
 }
@@ -218,7 +239,7 @@ function showAll() {
 }
 
 function showPoi() {
-  var url = "http://www.corsproxy.com/places.demo.api.here.com/places/v1/discover/explore?at=37.7833%2C-122.4167&cat=eat-drink&size=20&app_id=u2XKUURF9a5Hn1Qzjolj&app_code=91pISKIrgVscVQyd2L0Sdg&accept=application/json";
+  var url = "http://www.corsproxy.com/places.demo.api.here.com/places/v1/discover/explore?at=37.7833%2C-122.4167&cat=recreation&size=20&app_id=u2XKUURF9a5Hn1Qzjolj&app_code=91pISKIrgVscVQyd2L0Sdg&accept=application/json";
   $.getJSON( url, function( data ) {
     console.log(data);
     if (data && data.results && data.results.items) {
@@ -237,7 +258,8 @@ function showPoi() {
           }
         }
 
-        addIconMarker(map, item.position[0], item.position[1], icon);
+        var text = item.title;
+        addBubbleMarker(map, item.position[0], item.position[1], icon, text);
       }
     }
   });
